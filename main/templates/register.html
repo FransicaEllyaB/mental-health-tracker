@@ -17,7 +17,7 @@
       <input type="hidden" name="remember" value="true">
       <div class="rounded-md shadow-sm -space-y-px">
         {% for field in form %}
-          <div class="{% if not forloop.first %}mt-4{% endif %}">
+          <div class="{% if not forloop.first %}mt-4 bg{% endif %}">
             <label for="{{ field.id_for_label }}" class="mb-2 font-semibold text-black">
               {{ field.label }}
             </label>
