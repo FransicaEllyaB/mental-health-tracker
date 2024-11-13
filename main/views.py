@@ -14,17 +14,19 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
+import json
+from django.http import JsonResponse
 
 @login_required(login_url='/login')
 def show_main(request):
-        context = {
-            'name': request.user.username,
-            'npm' : '2306152286',
-            'class': 'PBP F',
-            'last_login': request.COOKIES['last_login'],
-        }
+    context = {
+        'name': request.user.username,
+        'npm' : '2306152286',
+        'class': 'PBP F',
+        'last_login': request.COOKIES['last_login'],
+    }
 
-        return render(request, "main.html", context)
+    return render(request, "main.html", context)
 
 def create_mood_entry(request):
     form = MoodEntryForm(request.POST or None)
@@ -114,8 +116,8 @@ def delete_mood(request, id):
 @csrf_exempt
 @require_POST
 def add_mood_entry_ajax(request):
-    mood = strip_tags(request.POST.get("mood")) # strip HTML tags!
-    feelings = strip_tags(request.POST.get("feelings")) # strip HTML tags!
+    mood = strip_tags(request.POST.get("mood"))
+    feelings = strip_tags(request.POST.get("feelings")) 
     mood = request.POST.get("mood")
     feelings = request.POST.get("feelings")
     mood_intensity = request.POST.get("mood_intensity")
@@ -129,3 +131,21 @@ def add_mood_entry_ajax(request):
     new_mood.save()
 
     return HttpResponse(b"CREATED", status=201)
+
+@csrf_exempt
+def create_mood_flutter(request):
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+        new_mood = MoodEntry.objects.create(
+            user=request.user,
+            mood=data["mood"],
+            mood_intensity=int(data["mood_intensity"]),
+            feelings=data["feelings"]
+        )
+
+        new_mood.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
